@@ -9,18 +9,24 @@ from torch_geometric.graphgym.loader import create_dataset, get_loader
 def prepare_data(train_dataset, train_size: int):
     val_dataset = deepcopy(train_dataset)
     unlabbeled_dataset = deepcopy(train_dataset)
+
     val_split = 0.1  # % of training data used for validation
     val_size = int(val_split * len(train_dataset))
+
     indexes = torch.randperm(len(train_dataset)).tolist()
     indexes_train = indexes[:train_size]
     indexes_val = indexes[train_size : (train_size + val_size)]
     indexes_unlabelled = indexes[(train_size + val_size) :]
+
     train_dataset.targets = train_dataset.targets[indexes_train]
     train_dataset.data = train_dataset.data[indexes_train]
+
     val_dataset.targets = val_dataset.targets[indexes_val]
     val_dataset.data = val_dataset.data[indexes_val]
+
     unlabbeled_dataset.targets = unlabbeled_dataset.targets[indexes_unlabelled]
     unlabbeled_dataset.data = unlabbeled_dataset.data[indexes_unlabelled]
+
     return train_dataset, val_dataset, unlabbeled_dataset
 
 

@@ -1,8 +1,8 @@
-from functools import partial
 
 import numpy as np
 import torch
 from tqdm import tqdm
+
 
 class SemiSupervisedEnsemble:
     def __init__(
@@ -37,22 +37,23 @@ class SemiSupervisedEnsemble:
             model.eval()
 
         val_losses = []
-        
+
         with torch.no_grad():
             for x, targets in self.val_dataloader:
                 x, targets = x.to(self.device), targets.to(self.device)
-                
+
                 # Ensemble prediction
                 preds = [model(x) for model in self.models]
                 avg_preds = torch.stack(preds).mean(0)
-                
+
                 val_loss = torch.nn.functional.mse_loss(avg_preds, targets)
                 val_losses.append(val_loss.item())
         val_loss = np.mean(val_losses)
         return {"val_MSE": val_loss}
 
     def train(self, total_epochs, validation_interval):
-        #self.logger.log_dict()
+        val_results = []
+        # self.logger.log_dict()
         for epoch in (pbar := tqdm(range(1, total_epochs + 1))):
             for model in self.models:
                 model.train()
@@ -61,9 +62,14 @@ class SemiSupervisedEnsemble:
                 x, targets = x.to(self.device), targets.to(self.device)
                 self.optimizer.zero_grad()
                 # Supervised loss
-                supervised_losses = [self.supervised_criterion(model(x), targets) for model in self.models]
+                supervised_losses = [
+                    self.supervised_criterion(model(x), targets)
+                    for model in self.models
+                ]
                 supervised_loss = sum(supervised_losses)
-                supervised_losses_logged.append(supervised_loss.detach().item() / len(self.models))  # type: ignore
+                supervised_losses_logged.append(
+                    supervised_loss.detach().item() / len(self.models)
+                )  # type: ignore
                 loss = supervised_loss
                 loss.backward()  # type: ignore
                 self.optimizer.step()
@@ -77,4 +83,7 @@ class SemiSupervisedEnsemble:
                 val_metrics = self.validate()
                 summary_dict.update(val_metrics)
                 pbar.set_postfix(summary_dict)
+                val_results.append(val_metrics["val_MSE"])
+
             self.logger.log_dict(summary_dict, step=epoch)
+        return val_results

@@ -1,10 +1,8 @@
-
-from itertools import chain
 import hydra
 import torch
 from omegaconf import OmegaConf
-from path_utils import get_configs_dir
 
+from path_utils import get_configs_dir
 from utils import seed_everything
 
 
@@ -35,11 +33,12 @@ def main(cfg):
     if cfg.compile_model:
         model = torch.compile(model)
     models = [model]
-    trainer = hydra.utils.instantiate(cfg.trainer.init, models=models, logger=logger, datamodule=dm, device=device)
+    trainer = hydra.utils.instantiate(
+        cfg.trainer.init, models=models, logger=logger, datamodule=dm, device=device
+    )
 
     results = trainer.train(**cfg.trainer.train)
     results = torch.Tensor(results)
-
 
 
 if __name__ == "__main__":

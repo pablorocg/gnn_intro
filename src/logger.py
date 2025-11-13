@@ -1,5 +1,6 @@
-
 import wandb as wnb
+
+from path_utils import get_logs_dir
 
 
 class WandBLogger:
@@ -11,7 +12,7 @@ class WandBLogger:
         self,
         group,
         name,
-        local_dir=".",
+        local_dir=get_logs_dir(),
         job_type=None,
         entity="bnns-for-molecules",
         project_name="semi-supervised-ensembles",

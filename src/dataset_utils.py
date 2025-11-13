@@ -44,7 +44,11 @@ def create_loader(unsupervised_train_fraction=0.0):
 
     # Create supervised training loader
     supervised_dataset = torch.utils.data.Subset(train_dataset, supervised_indices)
-    loaders = [get_loader(supervised_dataset, cfg.train.sampler, cfg.train.batch_size, shuffle=True)]
+    loaders = [
+        get_loader(
+            supervised_dataset, cfg.train.sampler, cfg.train.batch_size, shuffle=True
+        )
+    ]
 
     # Create unsupervised training loader
     unsupervised_dataset = torch.utils.data.Subset(train_dataset, unsupervised_indices)
@@ -61,10 +65,21 @@ def create_loader(unsupervised_train_fraction=0.0):
         if cfg.dataset.task == "graph":
             split_names = ["val_graph_index", "test_graph_index"]
             split_indices = dataset.data[split_names[i]]
-            loaders.append(get_loader(dataset[split_indices], cfg.val.sampler, cfg.train.batch_size, shuffle=False))
+            loaders.append(
+                get_loader(
+                    dataset[split_indices],
+                    cfg.val.sampler,
+                    cfg.train.batch_size,
+                    shuffle=False,
+                )
+            )
             delattr(dataset.data, split_names[i])
         else:
-            loaders.append(get_loader(dataset, cfg.val.sampler, cfg.train.batch_size, shuffle=False))
+            loaders.append(
+                get_loader(
+                    dataset, cfg.val.sampler, cfg.train.batch_size, shuffle=False
+                )
+            )
 
     print(f"Size of supervised_dataset: {len(supervised_dataset)}")
     print(f"Size of unsupervised_dataset: {len(unsupervised_dataset)}")

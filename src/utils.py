@@ -42,7 +42,7 @@ def prepare_optimizer(optimizer, models):
     # Set parameters from all models
     optimizer.param_groups = []
     params = list(chain(*[model.parameters() for model in models]))
-    optimizer.add_param_group({'params': params})
+    optimizer.add_param_group({"params": params})
     return optimizer
 
 
@@ -65,7 +65,7 @@ def validate_models(models, val_loader, device, ensemble=False, classification=F
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
         return 100 * correct / total
-    else: 
+    else:
         # regression
         for molecules, targets in val_loader:
             molecules, targets = molecules.to(device), targets.to(device)

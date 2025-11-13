@@ -3,18 +3,20 @@ Source:
 https://github.com/pyg-team/pytorch_geometric/blob/master/torch_geometric/loader/dataloader.py
 
 Minor change to the Collater class such that the dataloader returns batches in
-the form (batch, y) instead of (batch). 
+the form (batch, y) instead of (batch).
 """
+
 from collections.abc import Mapping, Sequence
 from typing import Any
 
 import torch.utils.data
 from torch.utils.data.dataloader import default_collate
-from torch_geometric.data import Batch, Dataset, Data
+from torch_geometric.data import Batch, Data, Dataset
 from torch_geometric.data.data import BaseData
 from torch_geometric.data.datapipes import DatasetAdapter
-from torch_geometric.typing import TensorFrame, torch_frame
 from torch_geometric.transforms import BaseTransform
+from torch_geometric.typing import TensorFrame, torch_frame
+
 
 class GetTarget(BaseTransform):
     def __init__(self, target: int | None = None) -> None:
@@ -24,6 +26,7 @@ class GetTarget(BaseTransform):
         if self.target is not None:
             data.y = data.y[:, self.target]
         return data
+
 
 class Collater:
     def __init__(
@@ -57,7 +60,7 @@ class Collater:
             return batch
         elif isinstance(elem, Mapping):
             return {key: self([data[key] for data in batch]) for key in elem}
-        elif isinstance(elem, tuple) and hasattr(elem, '_fields'):
+        elif isinstance(elem, tuple) and hasattr(elem, "_fields"):
             return type(elem)(*(self(s) for s in zip(*batch)))
         elif isinstance(elem, Sequence) and not isinstance(elem, str):
             return [self(s) for s in zip(*batch)]
@@ -84,6 +87,7 @@ class DataLoader(torch.utils.data.DataLoader):
         **kwargs (optional): Additional arguments of
             :class:`torch.utils.data.DataLoader`.
     """
+
     def __init__(
         self,
         dataset: Dataset | Sequence[BaseData] | DatasetAdapter,
@@ -94,7 +98,7 @@ class DataLoader(torch.utils.data.DataLoader):
         **kwargs,
     ):
         # Remove for PyTorch Lightning:
-        kwargs.pop('collate_fn', None)
+        kwargs.pop("collate_fn", None)
 
         # Save for PyTorch Lightning < 1.6:
         self.follow_batch = follow_batch

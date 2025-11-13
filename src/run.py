@@ -3,12 +3,13 @@ from itertools import chain
 import hydra
 import torch
 from omegaconf import OmegaConf
+from path_utils import get_configs_dir
 
 from utils import seed_everything
 
 
 @hydra.main(
-    config_path="../configs/",
+    config_path=get_configs_dir(),
     config_name="run.yaml",
     version_base=None,
 )
